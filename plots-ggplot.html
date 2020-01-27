@@ -382,6 +382,14 @@ summary {
 library(readxl) # install.packages(&quot;readxl&quot;)
 library(here) # install.packages(&quot;here&quot;)</code></pre>
 </div>
+<div id="california-national-parks-data" class="section level1">
+<h1>California National Parks Data</h1>
+<pre class="r"><code>ca_np &lt;- read.csv(here(&quot;data/ca_np.csv&quot;))
+# can also be written (in this case but good practice to include the &#39;here&#39; package that knows the full file path:
+# ca_np &lt;- read_csv(here(&quot;data&quot;, &quot;ca_nps.csv&quot;))
+# also be written:
+# ca_np &lt;- read_csv(&quot;data/ca_nps.csv&quot;)</code></pre>
+</div>
 
 
 
