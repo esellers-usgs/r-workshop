@@ -91,4 +91,44 @@ gg_base +
 # Add an argument to update the color based on the year value
 ```
 
+### Use gg-themes for overall updates
+
+- theme_light()
+- theme_minimal()
+- theme_bw() bw=blackandwhite
+
+```{r use gg-themes}
+gg_base +
+  geom_area() +
+  theme_dark()
+```
+
+ca_np contains all of the diff nationa parks in CA unlike ci_np, which is ony for the Channel Islands np.
+We want to give ggplot all of this data and figure out where the break points are based on the names of the different parks in this variable so...
+
+### Create a multi-series line plot using data for all DC National Parks
+So we can't use our gg_base snippet for this because it doesn't reference the ca_np dataset
+**Note:** There's a cheatsheet for ggplot2 visualizations
+
+```{r Create a multi-series line plot}
+ggplot(data = ca_np, aes(x = year, y = visitors, group = park_name)) +
+  geom_line(aes(color = park_name)
+  )
+#OR ggplot (ca_np, aes(year,visitors)). The aes pop-up indicates an alternate possible syntax for defining variables (instead of X = ...)
+```
+
+```{r split up or facet graphs based on a variable}
+my_np_graph <- ggplot(data = ca_np, aes(x = year, y = visitors)) +
+  geom_point(aes(color = park_name), show.legend = FALSE) +
+  facet_wrap(~park_name, scales = "free") +
+  theme_bw()
+```
+
+***Note:*** the tilde char means "as a function of"
+and scales = "free" (instead of fixed) allows R to select an appropriate axis scale for each graph
+
+Export my graph as a .png in the 'figures' folder and give it the filename np_graph.png
+```{r export as .png}
+ggsave(plot = my_np_graph, here("figures", "np_graph.png"))
+```
 
