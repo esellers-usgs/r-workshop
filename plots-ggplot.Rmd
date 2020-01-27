@@ -25,10 +25,70 @@ library(here) # install.packages("here")
 
 ```{r read-data}
 
-ca_np <- read.csv(here("data/ca_np.csv"))
+ca_np <- read_csv(here("data/ca_np.csv"))
 # can also be written (in this case but good practice to include the 'here' package that knows the full file path:
-# ca_np <- read_csv(here("data", "ca_nps.csv"))
+# ca_np <- read_csv(here("data", "ca_np.csv"))
 # also be written:
-# ca_np <- read_csv("data/ca_nps.csv")
+# ca_np <- read_csv("data/ca_np.csv")
+
+ci_np <- read_excel(here("data","ci_np.xlsx"))
 ```
+
+### Make my own first graph!
+We're going to make a line plot of year (x-variable) vs visitors (y-variable) in ggplot:
+
+```{r using ggplot with ci_np}
+# ggplot (dataframe, aesthetic(variables)) +creates a soft return
+# geom_line(no specifics) line graph/plot type
+ggplot(data = ci_np, aes(x = year, y = visitors)) +
+  geom_point() #select different types of charts line, column, area etc.
+```
+
+Save and name a base line of code as an object for CI (Channel Islands) plots:
+```{r create and name the base line of code for Channel Islands plots}
+gg_base <- ggplot(data = ci_np, aes(x = year, y = visitors))
+
+gg_base + geom_point() # now use the newly named object to insert the reusable code snippet
+```
+
+### Now let's start customizing!
+
+- Line / point colors with: color
+- Change line type with: linetype
+- Change point style with: pch
+- Change transparency with: apha
+
+```{r plot CI visitation again}
+gg_base +
+  geom_line(
+    color = "purple",
+    linetype = "dashed"
+  )
+```
+
+Activity: create a ggplot scatterplot (geom_point) that has triangle symbols (hint: ?pch) of a non-default size (size = #), and that are an updated color.
+
+```{r Activity create a ggplot scatterplot}
+gg_base +
+  geom_point(
+    color = "dodgerblue",
+    pch = 2,
+    size = 4
+  )
+```
+
+### Update graph aesthetics based on variables
+Size and color of the points will change based on the number of visitors
+The blue color in the example below is the RStudio default - not something we defined.
+```{r Change point size and color based on variable values}
+gg_base +
+  geom_point(
+    aes(size = visitors,
+    color = year),
+    pch = 10
+  )
+
+# Add an argument to update the color based on the year value
+```
+
 
