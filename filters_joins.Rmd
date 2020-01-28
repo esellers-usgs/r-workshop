@@ -1,0 +1,187 @@
+---
+title: "Filters and Joins"
+author: "ESellers"
+date: "1/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+
+# attached libraries
+library(tidyverse)
+library(readxl)
+library(here)
+library(kableExtra)
+```
+
+Get some fish.csv and kelp_fronds.xlsx data
+**NOTE:** by default, R reads in the first excel sheet but you can specify which sheet you want to read in by defining either the sheet name or number
+
+```{r read data}
+fish <- read_csv(here("data/fish.csv")) # or here("data", "fish.csv")
+kelp_abur <- read_excel(here("data/kelp_fronds.xlsx"))
+# or add sheet = "sheetname or number" to specify nonfirst sheet
+```
+
+### Filter by an exact match
+
+Exact match: "=="
+
+Example 1: only keep observations from `fish` where the common_hname variable matches (==) "garibaldi"
+
+```{r exact match filter}
+# take fish and filter it where values in the common_name field exactly match garibaldi and name the resulting object fish_garibaldi
+fish_garibaldi <- fish %>% 
+  filter(common_name == "garibaldi")
+```
+
+Activity: create a subset of fish called fish_over50, where the total count is greater than OR equal to 50
+
+```{r activity filter fishover50}
+fish_over50 <- fish %>% 
+  filter(total_count >= 50)
+```
+
+### Filter by this OR this
+
+Option 1: Use the vertical line (pipe) `|` means "or"
+
+```{r Filter by X OR y...}
+fish_2sp <- fish %>% 
+  filter(common_name == "garibaldi" | common_name == "blacksmith")
+```
+
+Option 2: filter for multiple matches within the same variable using the %in% operator (look for anything within a range of options)
+
+Option 2: 
+
+```{r Filter common_name for a range of ORd observations}
+fish_3sp <- fish %>% 
+  filter(common_name %in% c("garibaldi", "blacksmith", "black surfperch"))
+```
+
+Activity: subset from fish (fish_gar_2016) that keeps all observations where the year is 2016 OR the common_name is "garibaldi"
+
+```{r Filter ORd values from diff cols}
+fish_gar_2016 <- fish %>%
+  filter(year == 2016 | common_name == "garibaldi")
+```
+
+### Filter to match this AND that using a comma `,` or `&`
+
+```{r Filter ANDd values}
+aque_2018 <- fish %>% 
+  filter(year == 2018, site == "aque")
+```
+
+To exclude things: for exclude where X "does not match" use `!=`
+
+### stringr::str_Detect() for filtering on partial matches
+
+```{r combo of filter and str_detect}
+fish_black <- fish %>% 
+  filter(str_detect(common_name, pattern = "black"))
+```
+
+ACtivity: What is the subset of data if common_name == "it"?
+
+```{r partial match filter activity}
+fish_it <- fish %>% 
+  filter(str_detect(common_name, pattern = "it"))
+```
+
+### `dplyr::*_join` functions
+
+e.g. full_join(x,y, by = c("Species", "Year")) where the datasets x and y have these two cols in common
+
+```{r merge two datasets that have common cols}
+ab_kelpfish <- kelp_abur %>% 
+  full_join(fish, by = c("year", "site"))
+```
+
+If colValue in Y matches colValue in X then merge
+
+###left_join() to keep all from x, and merge matching observations from y with it (exclude things from y that don't have a match in x)
+leftJoin (keep obs from dataframe Y ONLY if match to variable in dataframe X)
+
+```{r leftJoin}
+kelp_fish_left <- kelp_abur %>% 
+  left_join(fish, by = c("year","site"))
+```
+
+### inner_join() to merge data frames, only keeping observations with a match in both
+Keep obs if there are complete matches across both data frames `inner_join()`
+
+```{r innerJoin}
+kelp_fish_innerjoin <- kelp_abur %>% 
+  inner_join(fish, by = c("year", "site"))
+# join where all observations contain a value in BOTH year AND site
+```
+
+### Pipe together multiple steps
+Add an additional mutate step
+
+- create an object called `my_fish_join` starting from `fish`
+- filter to only include obs at site "abur" from the year 2017
+- join kelp_abur data from to the resulting subset using left_join()
+- add a new col using `mutate()` to calculate fish per kelp frond density (counts of fish / # of total fronds)
+
+```{r}
+my_fish_join <- fish %>% 
+  filter(year == 2017, site == "abur") %>% 
+  left_join(kelp_abur, by = c("year", "site")) %>% 
+  mutate(fish_per_frond = total_count/total_fronds)
+```
+
+Create a nice HTML table using kableExtra
+
+```{r}
+my_fish_join %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = 
+                  "striped",
+                full_width = FALSE)
+```
+
+ggplot(data = ?, aes(x = ?, y= ?)) + geom_?
+
+```{r create a column graph}
+ggplot(data = my_fish_join, aes(x = common_name, y = fish_per_frond)) + 
+  geom_col(aes(fill = common_name))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
