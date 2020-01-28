@@ -1,0 +1,94 @@
+---
+title: "Pivot Lobsters"
+author: "ESellers"
+date: "1/27/2020"
+output: html_document
+---
+
+
+Attach our packages and reading in data
+
+```{r attach and install packages and read in data}
+library(tidyverse)
+library(readxl)
+library(here)
+library(skimr) # install.packages("skimr")
+library(kableExtra) # install.packages("kableExtra")
+
+# read in lobster data - and skip the first 4 rows because they contain metadata in this example
+lobsters <- read_xlsx(here("data", "lobsters.xlsx"),
+                        skip = 4)
+```
+
+Viewing our data with skimr 
+- gives you a quick 'skim' or summary of the data like number of rows, any variables with missing values, etc.
+
+```{r view data with skimr}
+# these are equivalent
+skimr::skim(lobsters) # explicitly stated from skimr
+skim(lobsters) # not explicit
+```
+
+# Pivot Tables
+%>% means "and then"
+In R, Pivot tables are: `group_by() %>% summarize()`
+The `n()` function will count observations or values in a field
+```{r pivot table with 2 variables}
+# group by year
+lobsters %>% 
+  group_by(year) %>% 
+  summarize(count_by_year = n())
+
+# group by year and site
+lobsters %>% 
+  group_by(year, site) %>% 
+  summarize(count_by_year_site = n())
+
+# group by site and year
+lobsters %>% 
+  group_by(site, year) %>% 
+  summarize(count_by_site_year = n())
+```
+
+Summarize by multiple variables
+The `na.rm= TRUE` instructs R to remove missing values from the mean function/calculation
+And assign or label as an object called siteyear_summary
+```{r pivot table with multiple variables}
+siteyear_summary <- lobsters %>% 
+  group_by(site, year) %>% 
+  summarize(count_by_site_year = n(),
+            mean_size_mm = mean(size_mm, na.rm= TRUE),
+            sd_size_mm = sd(size_mm, na.rm = TRUE))
+```
+
+Table formatting with `kableExtra::kable()`
+```{r table formatting with kableExtra}
+siteyear_summary %>% 
+  kable()
+```
+
+There are `r nrow(lobsters)` total lobsters included in this report.  
+**NOTE:** The addition of the r at the beginning tells RMarkdown that you want this code snippet to run when you knit this.
+
+## Activity
+1. build from our analyses: calculate the median lobster size for each site and year (hint: `size_mm` variable anhd a function called `median()`
+
+```{r}
+siteyear_median_lobster_size <- lobsters %>% 
+  group_by(site, year) %>% 
+  summarize(count_by_site_year = n(),
+            median_size_mm = median(size_mm, na.rm= TRUE))
+```
+
+
+2. create a ggplot and save. For example:
+```{r}
+ggplot(data = siteyear_summary, aes(x = year, y = median_size_mm, color = site)) +
+  geom_line()
+ggsave(here("figures", "lobsters-plot.png"))
+```
+
+
+3. sync this to github
+
+
