@@ -16,7 +16,7 @@ library(skimr) # install.packages("skimr")
 library(kableExtra) # install.packages("kableExtra")
 
 # read in lobster data - and skip the first 4 rows because they contain metadata in this example
-lobsters <- read_xlsx(here("data", "lobsters.xlsx"),
+lobsters <- read_xlsx(here("data", "lobsters2.xlsx"),
                         skip = 4)
 ```
 
