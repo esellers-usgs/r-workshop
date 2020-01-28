@@ -83,7 +83,7 @@ siteyear_median_lobster_size <- lobsters %>%
 
 2. create a ggplot and save. For example:
 ```{r}
-ggplot(data = siteyear_summary, aes(x = year, y = median_size_mm, color = site)) +
+ggplot(data = siteyear_median_lobster_size, aes(x = year, y = median_size_mm, color = site)) +
   geom_line()
 ggsave(here("figures", "lobsters-plot.png"))
 ```
