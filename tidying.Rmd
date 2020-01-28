@@ -1,0 +1,144 @@
+---
+title: "Tidying Session Day2"
+author: "ESellers"
+date: "1/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE) # echo=true is to show code in the Rmarkdown doc
+
+# Attaching packages. Note remember to alwasy do Ctrl Enter for each of these to 'run' them.
+library(tidyverse)
+library(janitor)
+library(here)
+library(readxl)
+```
+
+### Read in inverts.xlsx
+
+```{r read in data}
+inverts <- read_excel(here("data", "inverts.xlsx")) # or "data/inverts.xlsx" (NOTE R uses the forward slash)
+```
+
+### `pivot_longer()`
+We can use a single colon (:) to indicate a series of sequential columns (e.g. A:D)
+```{r pivot_longer convert variables split across columns}
+inverts_long <- pivot_longer(data = inverts, 
+                             cols = '2016':'2018',
+                             names_to = "year",
+                             values_to = "sp_count") #put the values for each year in a new column sp_count
+                             
+# What if you want some in series and some NOT in series?
+# c('2016':'2018', '2020')
+```
+
+What if we want to get it back into wide format?
+
+```{r pivot_wider}
+inverts_wide <- inverts_long %>% 
+  pivot_wider(names_from = common_name, 
+              values_from = sp_count)
+```
+
+### Use `janitor::clean_names()` (package::functionInthePackage) to tidy up field labels
+
+```{r inverts_wide with clean colNames}
+inverts_wide <- inverts_wide %>% 
+  clean_names()
+
+# clean_names default case is lowercase_snake_case
+```
+
+### `tidyr::unite` to combine info from multiple columns
+Example:merge the site code and year into a single column called "site_year"
+
+```{r combine multiple cols}
+inverts_unite <- inverts_long %>% 
+  unite(col = "site_year", 
+        c(site, year),
+        sep = "_") #col = use quotes whenever creating a new variable name; sep = separator delimiter
+```
+
+
+### Activity: Create a new ojbect called 'inverts_moyr' starting from inverts_long that united the month and year cols into a SINGLE col named "mo_yr usig a slash "/" as the sepearator... then try some other fun separators
+
+```{r Activity using unite function}
+inverts_moyr <- inverts_long %>% 
+  unite(col = "mo_yr",
+        c(year, month),
+        sep ="_")
+```
+
+### `tidyr::separate()` to separate a single col value into multiple cols
+
+```{r Separate col into multi-cols}
+inverts_sep <- inverts_unite %>% 
+  separate(col = site_year, into = c("my_site", "my_year"))
+```
+
+### `stringr` + `mutate()` functions
+
+Example: using built-in `tree` dataset with mutate() to add 5 to all of the tree height values
+
+```{r mutate to add a new col}
+trees_new <- trees %>% 
+  mutate(height_update = Height + 5) #if you use the same col_name R will overwrite the orig col
+```
+
+### `str_replace()` incombo with `mutate` to change string pattern
+
+```{r use str_replace inside mutate function to change a string pattern}
+ca_abbr <- inverts %>% 
+  mutate(common_name = 
+           str_replace(common_name, 
+                       pattern = "california",
+                       replacement = "CA"))
+```
+
+Example: In the common_name column, you want to replace the word 'spiny' with 'awesome'
+
+```{r}
+awesome_lobsters <- inverts %>% 
+  mutate(common_name =
+           str_replace(common_name,
+                       pattern = "spiny",
+                       replacement = "awesome"))
+```
+
+```{r TEST nested stringr and mutate}
+# this didn't quite work - keeps adding badly named cols but does replace all 3 values
+nested_str_replace <- inverts %>% 
+  mutate(common_name =
+           str_replace(common_name, pattern = "california", replacement = "CA") %>%mutate(common_name =
+           str_replace(common_name, pattern = "spiny", replacement = "awesome") %>% 
+  mutate(common_name =
+           str_replace(common_name, pattern = "snail", replacement = "mollusc")) %>% 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
